@@ -58,6 +58,62 @@ namespace BookStoreWebAPI.Controllers
         }
 
         //Add a Book
+        [HttpPost]
+
+        public IActionResult AddBook([FromBody] Book book)
+        {
+            var maxID = books.Max(b => b.Id);
+            var newBook = new Book
+            {
+                Id = maxID + 1,
+                Title = book.Title,
+                Author = book.Author,
+                PublicationDate = book.PublicationDate,
+            };
+
+            books.Add(newBook);
+
+            return Ok(newBook);
+        }
+
+        //Update a Book
+        [HttpPut("{id:int}")]
+        public IActionResult EditBook(int id, [FromBody] Book book)
+        {
+            var exsitingBook = books.FirstOrDefault(b => b.Id == id);
+
+            if (exsitingBook == null)
+            {
+                return NotFound($"There is no book for this id : {id}");
+            }
+
+
+            exsitingBook.Title = book.Title;
+            exsitingBook.Author = book.Author;
+            exsitingBook.PublicationDate = book.PublicationDate;
+
+
+
+            return Ok(exsitingBook);
+
+        }
+
+        //Delete a Book
+        [HttpDelete("{id:int}")]
+
+        public IActionResult DeleteBook(int id)
+        {
+            var exsitingBook = books.FirstOrDefault(b => b.Id == id);
+
+            if (exsitingBook == null)
+            {
+                return NotFound($"There is no book for this id : {id}");
+            }
+
+            books.Remove(exsitingBook);
+
+            return Ok(exsitingBook);
+        }
 
 
     }
