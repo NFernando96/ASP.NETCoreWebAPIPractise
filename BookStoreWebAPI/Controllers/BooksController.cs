@@ -1,4 +1,5 @@
-﻿using BookStoreWebAPI.Models;
+﻿using BookStore.Business.Services.BookService;
+using BookStoreWebAPI.DataAcces.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreWebAPI.Controllers
@@ -7,112 +8,56 @@ namespace BookStoreWebAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private static List<Book> books = new()
+        private readonly BookService _bookService;
+
+        public BooksController()
         {
-            new Book
-            {
-                Id = 1,
-                Title = "Title1",
-                Author="Author1",
-                PublicationDate = 2023,
-            },
-
-            new Book
-            {
-                Id=2,
-                Title = "Title2",
-                Author="Author2",
-                PublicationDate = 2021,
-            },
-
-                new Book
-            {
-                Id=3,
-                Title = "Title3",
-                Author="Author3",
-                PublicationDate = 2022,
-            }
+            _bookService = new BookService();
+        }
 
 
-        };
 
         //Get All Books
         [HttpGet]
-        public IActionResult GetAllBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
         {
-            return Ok(books);
+            var response = await _bookService.GetALLBooksAsync();
+            return Ok(response);
         }
 
         //Get a Book by ID
         [HttpGet("{id:int}")]
-        public IActionResult GetBook(int id)
+        public async Task<IActionResult> GetBook(int id)
         {
-            var exsitingBook = books.FirstOrDefault(b => b.Id == id);
-
-            if (exsitingBook == null)
-            {
-                return NotFound($"There is no book for this id : {id}");
-            }
-
-            return Ok(exsitingBook);
+            var response = await _bookService.GetBookByIdAsync(id);
+            return Ok(response);
         }
 
         //Add a Book
         [HttpPost]
 
-        public IActionResult AddBook([FromBody] Book book)
+        public async Task<IActionResult> AddBook([FromBody] Book book)
         {
-            var maxID = books.Max(b => b.Id);
-            var newBook = new Book
-            {
-                Id = maxID + 1,
-                Title = book.Title,
-                Author = book.Author,
-                PublicationDate = book.PublicationDate,
-            };
-
-            books.Add(newBook);
-
-            return Ok(newBook);
+            var response = await _bookService.AddBookAsync(book);
+            return Ok(response);
         }
 
         //Update a Book
         [HttpPut("{id:int}")]
-        public IActionResult EditBook(int id, [FromBody] Book book)
+        public async Task<IActionResult> EditBook(int id, [FromBody] Book book)
         {
-            var exsitingBook = books.FirstOrDefault(b => b.Id == id);
 
-            if (exsitingBook == null)
-            {
-                return NotFound($"There is no book for this id : {id}");
-            }
-
-
-            exsitingBook.Title = book.Title;
-            exsitingBook.Author = book.Author;
-            exsitingBook.PublicationDate = book.PublicationDate;
-
-
-
-            return Ok(exsitingBook);
-
+            var response = await _bookService.EditBookAsync(id, book);
+            return Ok(response);
         }
 
         //Delete a Book
         [HttpDelete("{id:int}")]
 
-        public IActionResult DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            var exsitingBook = books.FirstOrDefault(b => b.Id == id);
-
-            if (exsitingBook == null)
-            {
-                return NotFound($"There is no book for this id : {id}");
-            }
-
-            books.Remove(exsitingBook);
-
-            return Ok(exsitingBook);
+            var response = await _bookService.DeleteBook(id);
+            return Ok(response);
         }
 
 
